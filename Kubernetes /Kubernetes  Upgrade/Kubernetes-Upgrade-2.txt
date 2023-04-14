@@ -1,0 +1,39 @@
+### NOTES
+
+# both 
+
+kubectl get nodes
+
+sudo apt-mark unhold kubeadm && \
+sudo apt-get update && sudo apt-get install -y kubeadm=1.23.3-00 && \
+sudo apt-mark hold kubeadm
+
+# master
+
+kubeadm version
+sudo kubeadm upgrade plan
+sudo kubeadm upgrade apply -y v1.23.3
+kubectl get nodes
+MASTER=`kubectl get nodes -ojsonpath="{.items[0].metadata.name}"`
+echo $MASTER
+WORKER=`kubectl get nodes -ojsonpath="{.items[1].metadata.name}"`
+echo $WORKER
+kubectl drain $MASTER --ignore-daemonsets
+kubectl drain $WORKER --ignore-daemonsets
+
+# worker
+sudo kubeadm upgrade node
+
+# both
+sudo apt-mark unhold kubelet kubectl && \
+sudo apt-get update && sudo apt-get install -y kubelet=1.23.3-00 kubectl=1.23.3-00 && \
+sudo apt-mark hold kubelet kubectl
+
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+
+# master
+kubectl uncordon $MASTER
+kubectl uncordon $WORKER
+kubectl get nodes
+
