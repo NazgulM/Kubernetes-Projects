@@ -1,6 +1,7 @@
 # Setup a basic Kubernetes cluster with ease using RKE
 
 1; Create 4 droplets Ubuntu 22.10.
+
 ```
 wget https://github.com/rancher/rke/releases/download/v1.4.4/rke_linux-amd64
 
@@ -103,4 +104,3 @@ Network Plugin Type (flannel, calico, weave, canal, aci) [canal]: flannel
 
 kubectl get nodes
 ```
-
