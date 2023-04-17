@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-port-from-namespace
+  namespace: internal
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    # PART 1 - ALLOW PODS WITHIN SAME NAMESPACE ON PORT 80
+    - podSelector: {}
+ 
+    # PART 2 - ALLOW PODS FROM CORP NAMESPACE
+    - namespaceSelector:
+        matchLabels:
+          project: corp
+
+    ports:
+    - protocol: TCP
+      port: 80
