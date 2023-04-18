@@ -1,0 +1,53 @@
+# Create new NPs
+
+There are existing Pods in Namespace space1 and space2 .
+
+We need a new NetworkPolicy named np that restricts all Pods in Namespace space1 to only have outgoing traffic to Pods in Namespace space2 . Incoming traffic not affected.
+
+We also need a new NetworkPolicy named np that restricts all Pods in Namespace space2 to only have incoming traffic from Pods in Namespace space1 . Outgoing traffic not affected.
+
+The NetworkPolicies should still allow outgoing DNS traffic on port 53 TCP and UDP.
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np
+  namespace: space1
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+     - namespaceSelector:
+        matchLabels:
+         kubernetes.io/metadata.name: space2
+  - ports:
+    - port: 53
+      protocol: TCP
+    - port: 53
+      protocol: UDP
+
+k create -f npEgress.yaml
+networkpolicy.networking.k8s.io/np created
+
+Second NP
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np
+  namespace: space2
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+   - from:
+     - namespaceSelector:
+        matchLabels:
+         kubernetes.io/metadata.name: space1
+
+k create -f npIngress.yaml 
+networkpolicy.networking.k8s.io/np created
+```
