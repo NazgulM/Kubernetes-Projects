@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: web-deploy
+  name: web-service
+  namespace: app1
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30090
+  selector:
+    app: web-deploy
+  type: NodePort
+status:
+  loadBalancer: {}

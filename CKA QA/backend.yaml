@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    tier: backend
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        tier: backend
+    spec:
+      containers:
+      - image: mycloudtutorials/phpbasic:latest
+        name: phpbasic
+        resources: {}
+status: {}

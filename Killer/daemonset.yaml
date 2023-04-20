@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ds-important
+  namespace: project-tiger
+  labels:
+    id: ds-important
+    uuid: 18426aabbcc
+spec:
+  selector:
+    matchLabels:
+      id: ds-important
+      uuid: 18426aabbcc
+  template:
+    metadata:
+      labels:
+        id: ds-important
+        uuid: 18426aabbcc
+    spec:
+      tolerations:
+      # these tolerations are to have the daemonset runnable on control plane nodes
+      # remove them if your control plane nodes should not run pods
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: ds-important
+        image: httpd:2.4-alpine
+        resources:
+          requests:
+            cpu: 10m
+            memory: 10Mi
