@@ -467,5 +467,3 @@ DB_USER=my_user2
 
 DB_PASSWORD=P@ssword2
 ```
-
-5; 
