@@ -153,6 +153,7 @@ Note: Make sure the Policy allows outgoing traffic on TCP/UDP ports 53 for DNS r
 In our case, we will setup deployment, services from scratch on a local 3 node Kubernetes cluster that I setup using KubeAdm. Then we will test the services are working. We will also test that frontend pod is able to connect to backend-service and outside world (like curl google.com)
 
 After we apply Egress Network Policy, the frontend pods should still be able to connect to backend service, but can not curl google.com. Our NetworkPolicy successfully restricted the outbound connections from the POD.
+
 ```
 k create deploy backend --image mycloudtutorials/phpbasic:latest --dry-run=client -oyaml > backend.yaml 
 
@@ -361,7 +362,7 @@ P@ssword1
 
 Create a yaml file to create a secret named secret2, with key value pairs user2=my_user2, password=P@ssword2, verify the secret was create with the correct data.
 
-echo my_user2 | base64   
+echo my_user2 | base64
 bXlfdXNlcjIK
 
 echo P@ssword2 | base64
@@ -372,7 +373,7 @@ kind: Secret
 metadata:
   name: secret2
 data:
-  user2: bXlfdXNlcjIK 
+  user2: bXlfdXNlcjIK
   password2: UEBzc3dvcmQyCg==
 
  k apply -f secret.yaml
@@ -384,7 +385,7 @@ data:
 
 Create a pod named secretpod1, using image nginx,setup the secret secret1 as volume mount on the pod at path /etc/secret1
 
-cat secretpod1.yaml 
+cat secretpod1.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -394,17 +395,18 @@ metadata:
   name: secretpod1
 spec:
   volumes:
-  - name: secret1
+
+- name: secret1
     secret:
       secretName: secret1
   containers:
-  - image: nginx
+- image: nginx
     name: secretpod1
-    volumeMounts: 
-     - name: secret1
+    volumeMounts:
+  - name: secret1
        mountPath: /etc/secret1
 
-k apply -f secretpod1.yaml 
+k apply -f secretpod1.yaml
 pod/secretpod1 created
 
  k get pods
@@ -412,7 +414,9 @@ NAME         READY   STATUS    RESTARTS   AGE
 secretpod1   1/1     Running   0          70s
 
 k exec -it secretpod1 -- sh
-# ls /etc/secret1
+
+## ls /etc/secret1
+
 password  username
 
 cat /etc/secret1/username
@@ -420,6 +424,7 @@ my_user1
 
 cat /etc/secret1/password
 P@ssword1
+
 ```
 
 Create a pod named secretpod2 using image nginx.
