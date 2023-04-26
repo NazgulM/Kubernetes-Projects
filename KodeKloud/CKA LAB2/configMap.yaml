@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webapp-color-wl10
+  name: webapp-color-wl10
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp-color-wl10
+  template:
+    metadata:
+      labels:
+        app: webapp-color-wl10
+    spec:
+      containers:
+      - image: kodekloud/webapp-color
+        name: webapp-color-wl10
+        envFrom:
+        - configMapRef: 
+            name: webapp-wl10-config-map

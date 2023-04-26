@@ -969,7 +969,7 @@ echo cluster3,default,backend-cka06-arch > /opt/high_memory_pod
 
 37; We deployed an app using a deployment called web-dp-cka06-trb. it's using the httpd:latest image. There is a corresponding service called web-service-cka06-trb that exposes this app on the node port 30005. However, the app is not accessible!
 
-Troubleshoot and fix this issue. Make sure you are able to access the app using curl http://kodekloud-exam.app:30005 command.
+Troubleshoot and fix this issue. Make sure you are able to access the app using curl <http://kodekloud-exam.app:30005> command.
 
 ```
 kubectl get deploy
@@ -1056,6 +1056,7 @@ Wait for 2 minutes to run again this cron and it should complete now.
 39; Find the pod that consumes the most CPU and store the result to the file /opt/high_cpu_pod in the following format cluster_name,namespace,pod_name.
 
 The pod could be in any namespace in any of the clusters that are currently configured on the student-node.
+
 ```
 kubectl top pods -A --context cluster1 --no-headers | sort -nr -k3 | head -1
 kube-system   kube-apiserver-cluster1-controlplane            30m   258Mi   
@@ -1072,7 +1073,7 @@ kube-system   metrics-server-7cd5fcb6b7-zvfrg           5m    18Mi
 echo cluster1,kube-system,kube-apiserver-cluster1-controlplane > /opt/high_cpu_pod 
 ```
 
-40; There is a pod called pink-pod-cka16-trb created in the default namespace in cluster4. This app runs on port tcp/5000 and it is exposed to end-users using an ingress resource called pink-ing-cka16-trb in such a way that it is supposed to be accessible using the command: curl http://kodekloud-pink.app on cluster4-controlplane host.
+40; There is a pod called pink-pod-cka16-trb created in the default namespace in cluster4. This app runs on port tcp/5000 and it is exposed to end-users using an ingress resource called pink-ing-cka16-trb in such a way that it is supposed to be accessible using the command: curl <http://kodekloud-pink.app> on cluster4-controlplane host.
 
 However, this is not working. Troubleshoot and fix this issue, making any necessary to the objects.
 
@@ -1124,7 +1125,7 @@ Under tolerations: add below given tolerations as well
 
 42; We have deployed a 2-tier web application on the cluster3 nodes in the canara-wl05 namespace. However, at the moment, the web app pod cannot establish a connection with the MySQL pod successfully.
 You can check the status of the application from the terminal by running the curl command with the following syntax:
-curl http://cluster3-controlplane:NODE-PORT
+curl <http://cluster3-controlplane:NODE-PORT>
 
 To make the application work, create a new secret called db-secret-wl05 with the following key values: -
 
@@ -1228,3 +1229,138 @@ kubectl get pod nginx-resolver-cka06-svcn -o wide
 IP=`kubectl get pod nginx-resolver-cka06-svcn -o wide --no-headers | awk '{print $6}' | tr '.' '-'`
 
 kubectl run test-nslookup --image=busybox:1.28 --rm -it --restart=Never -- nslookup $IP.default.pod > /root/CKA/nginx.pod.cka06.svcn
+```
+
+45; Find the node across all clusters that consumes the most memory and store the result to the file /opt/high_memory_node in the following format cluster_name,node_name.
+
+The node could be in any clusters that are currently configured on the student-node.
+
+```
+kubectl top node --context cluster1 --no-headers | sort -nr -k4 | head -1
+cluster1-controlplane   124m   1%    768Mi   1%    
+
+kubectl top node --context cluster2 --no-headers | sort -nr -k4 | head -1
+cluster2-controlplane   79m   0%    873Mi   1%    
+ kubectl top node --context cluster3 --no-headers | sort -nr -k4 | head -1
+cluster3-controlplane   78m   0%    902Mi   1%  
+
+kubectl top node --context cluster4 --no-headers | sort -nr -k4 | head -1
+cluster4-controlplane   78m   0%    901Mi   1%    
+
+echo cluster3,cluster3-controlplane > /opt/high_memory_node 
+```
+
+46; Install etcd utility on cluster2-controlplane node so that we can take/restore etcd backups.
+You can ssh to the controlplane node by running ssh root@cluster2-controlplane from the student-node
+
+```
+ssh root@cluster2-controlplane
+
+cd /tmp
+export RELEASE=$(curl -s https://api.github.com/repos/etcd-io/etcd/releases/latest | grep tag_name | cut -d '"' -f 4)
+
+wget https://github.com/etcd-io/etcd/releases/download/${RELEASE}/etcd-${RELEASE}ar xvf etcd-${RELEASE}-linux-amd64.tar.gz ;
+
+cd etcd-${RELEASE}-linux-amd64
+
+cluster2-controlplane ~ ➜ mv etcd etcdctl  /usr/local/bin/
+```
+
+47; The purple-app-cka27-trb pod is an nginx based app on the container port 80. This app is exposed within the cluster using a ClusterIP type service called purple-svc-cka27-trb.
+There is another pod called purple-curl-cka27-trb which continuously monitors the status of the app running within purple-app-cka27-trb pod by accessing the purple-svc-cka27-trb service using curl.
+
+Recently we started seeing some errors in the logs of the purple-curl-cka27-trb pod.
+
+Dig into the logs to identify the issue and make sure it is resolved.
+
+Note: You will not be able to access this app directly from the student-node but you can exec into the purple-app-cka27-trb pod to check.
+
+```
+kubectl logs purple-curl-cka27-trb
+Not able to connect to the nginx app on http://purple-svc-cka27-trb
+
+kubectl exec -it purple-app-cka27-trb -- bash
+curl http://purple-svc-cka27-trb
+exit
+
+kubectl edit svc purple-svc-cka27-trb
+Under ports: -> port: and targetPort: is set to 8080 but nginx default port is 80 so change 8080 to 80 and save the changes
+
+kubectl logs purple-curl-cka27-trb
+```
+
+48; The green-deployment-cka15-trb deployment is having some issues since the corresponding POD is crashing and restarting multiple times continuously.
+
+Investigate the issue and fix it, make sure the POD is in running state and its stable (i.e NO RESTARTS!).
+
+```
+kubectl get pod
+kubectl logs -f green-deployment-cka15-trb-xxxx
+
+kubectl delete pod green-deployment-cka15-trb-xxxx
+
+kubectl get deploy
+kubectl edit deploy green-deployment-cka15-trb
+Under resources: -> limits: change memory from 256Mi to 512Mi and save the changes.
+Now watch closely the POD status again
+kubectl get pod
+```
+
+49; On cluster4 we are having some weird issue where we are intermittently getting below error while running kubectl commands.
+
+The connection to the server cluster4-controlplane:6443 was refused - did you specify the right host or port?
+Whenever you get this error, you can wait for 10-15 seconds to make kubectl command work again, but it will come again after few second
+
+We also noticed that kube-controller-manager-cluster4-controlplane pod is restarting continuously. Look into the issue and troubleshoot the same.
+You can SSH into the cluster4 using ssh cluster4-controlplane command.
+
+```
+kubectl get pod --context=cluster4 -n kube-system
+kubectl logs -f kube-controller-manager-cluster4-controlplane --context=cluster4 -n kube-system
+kubectl get pod --context=cluster4 -n kube-system
+
+kubectl logs -f kube-apiserver-cluster4-controlplane -n kube-system
+kubectl get event --field-selector involvedObject.name=kube-apiserver-cluster4-controlplane -n kube-system
+
+Warning   Unhealthy      pod/kube-apiserver-cluster4-controlplane   Liveness probe failed: Get "https://10.10.132.25:6444/livez": dial tcp 10.10.132.25:6444: connect: connection refused
+
+ssh cluster4-controlplane
+vi /etc/kubernetes/manifests/kube-apiserver.yaml
+Under livenessProbe: you will see the port: value is 6444, change it to 6443 and save. Now wait for few seconds let the kube api pod come up.
+```
+
+50; A pod definition file is created at /root/peach-pod-cka05-str.yaml on the student-node. Update this manifest file to create a persistent volume claim called peach-pvc-cka05-str to claim a 100Mi of storage from peach-pv-cka05-str PV (this is already created). Use the access mode ReadWriteOnce.
+
+Further add peach-pvc-cka05-str PVC to peach-pod-cka05-str POD and mount the volume at /var/www/html location. Ensure that the pod is running and the PV is bound.
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: peach-pvc-cka05-str
+spec:
+  volumeName: peach-pv-cka05-str
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: peach-pod-cka05-str
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    volumeMounts:
+      - mountPath: "/var/www/html"
+        name: nginx-volume
+  volumes:
+    - name: nginx-volume
+      persistentVolumeClaim:
+        claimName: peach-pvc-cka05-str
+
+k apply -f /root/peach-pod-cka05-str.yaml
+```
