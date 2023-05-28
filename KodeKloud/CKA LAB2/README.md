@@ -1767,3 +1767,8 @@ kubectl exec -it cyan-black-cka28-trb -- sh
 curl cyan-svc-cka28-trb.cyan-ns-cka28-trb.svc.cluster.local
 It should not work from this pod. So its looking good now.
 ```
+
+
+```
+kubectl get deployment --output=custom-columns="DEPLOYMENT:.metadata.name,CONTAINER_IMAGE:.spec.template.spec.containers[*].image,READY_REPLICAS:.status.readyReplicas,NAMESPACE:.metadata.namespace" --sort-by=.metadata.name
+```
