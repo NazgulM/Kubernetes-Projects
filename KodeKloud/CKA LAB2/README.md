@@ -237,6 +237,7 @@ Finally save the changes.
 The application runs on port 80 inside the container and is exposed on the node port 30090.
 
 ```
+
 kubectl logs grey-cka21-trb --context=cluster4
 kubectl get event --context=cluster4 --field-selector involvedObject.name=grey-cka21-trb
 
@@ -1766,9 +1767,11 @@ Also make sure its not accessible from the other pod(s)
 kubectl exec -it cyan-black-cka28-trb -- sh
 curl cyan-svc-cka28-trb.cyan-ns-cka28-trb.svc.cluster.local
 It should not work from this pod. So its looking good now.
+
 ```
 
 
 ```
+
 kubectl get deployment --output=custom-columns="DEPLOYMENT:.metadata.name,CONTAINER_IMAGE:.spec.template.spec.containers[*].image,READY_REPLICAS:.status.readyReplicas,NAMESPACE:.metadata.namespace" --sort-by=.metadata.name
 ```
